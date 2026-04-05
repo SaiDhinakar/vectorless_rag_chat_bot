@@ -9,8 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
-# Upload directories
-uploads/
+# Data directories
+data/
 
 # Environment variables
 .env
