@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 flex-grow flex flex-col items-center justify-center max-w-4xl overflow-y-auto">
+    <div class="text-center mb-12 animate-fade-in-up">
+        <h1 class="text-4xl md:text-6xl font-bold mb-4 tracking-tight text-slate-900">Chat with your <span
+                class="gradient-text">Documents</span></h1>
+        <p class="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto font-light">Experience the power of
+            reasoning-based Vectorless RAG. Upload a single document, wait for indexing, and start asking intelligent
+            questions directly backed by knowledge reasoning without chunking.</p>
+    </div>
+
+    <!-- Upload Card -->
+    <div class="w-full max-w-lg glass-panel rounded-2xl p-8 shadow-xl relative overflow-hidden group">
+        <!-- background glow -->
+        <div
+            class="absolute -inset-1 bg-gradient-to-r from-[#4facfe]/10 to-[#00f2fe]/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition duration-1000 group-hover:duration-200">
+        </div>
+
+        <div class="relative">
+            <h2 class="text-2xl font-semibold text-slate-800 mb-6">Start a new session</h2>
+            <form action="/upload" method="post" enctype="multipart/form-data" class="space-y-6" id="uploadForm">
+                <div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-[#4facfe] bg-slate-50/50 hover:bg-slate-100/50 transition-colors cursor-pointer"
+                    onclick="document.getElementById('file').click()">
+                    <svg class="mx-auto h-12 w-12 text-slate-400 mb-4" stroke="currentColor" fill="none"
+                        viewBox="0 0 48 48" aria-hidden="true">
+                        <path
+                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="text-sm text-slate-500">
+                        <label for="file"
+                            class="relative cursor-pointer rounded-md font-medium text-[#4facfe] hover:text-[#00f2fe] focus-within:outline-none">
+                            <span>Browse files</span>
+                            <input id="file" name="file" type="file" class="sr-only" required
+                                accept="application/pdf, text/plain">
+                        </label>
+                        <p class="pl-1 truncate mt-2 font-medium" id="fileNameDisplay">Supports PDF or TXT</p>
+                    </div>
+                </div>
+                <button type="submit"
+                    class="w-full btn-gradient text-white py-3 px-4 rounded-xl font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4facfe] flex items-center justify-center gap-2 shadow-md"
+                    id="submitBtn">
+                    <span>Initialize Memory & Chat</span>
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if chats %}
+    <!-- Recent Chats -->
+    <div class="w-full max-w-lg mt-12 animate-fade-in-up" style="animation-delay: 100ms;">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">Memory Sessions</h3>
+        <div class="space-y-3">
+            {% for chat in chats %}
+            <a href="/chat/{{ chat.id }}"
+                class="block glass-panel rounded-xl p-4 hover:bg-slate-50 transition-colors flex items-center justify-between group border border-slate-200">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-[#4facfe] group-hover:border-[#4facfe]/30 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-800 truncate max-w-[200px]">{{ chat.document.filename
+                            }}</p>
+                        <p class="text-xs text-slate-500">{{ chat.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </div>
+                <div
+                    class="text-[#4facfe] opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    const fileInput = document.getElementById('file');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const form = document.getElementById('uploadForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            fileNameDisplay.textContent = e.target.files[0].name;
+            fileNameDisplay.classList.add('text-slate-800');
+        }
+    });
+
+    form.addEventListener('submit', () => {
+        submitBtn.innerHTML = '<div class="loader mr-2"></div> Uploading...';
+        submitBtn.disabled = true;
+        form.submit();
+    });
+</script>
+<style>
+    @keyframes fade-in-up {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fade-in-up 0.6s ease-out forwards;
+    }
+</style>
+{% endblock %}

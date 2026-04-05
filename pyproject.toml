@@ -1,0 +1,17 @@
+[project]
+name = "vectorless_doc_chat_whbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.135.3",
+    "google-genai>=1.67.0",
+    "jinja2>=3.1.6",
+    "ollama>=0.6.1",
+    "pageindex>=0.2.8",
+    "python-dotenv>=1.2.2",
+    "python-multipart>=0.0.22",
+    "sqlalchemy>=2.0.49",
+    "uvicorn>=0.43.0",
+]
